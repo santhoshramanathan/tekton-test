@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: nodejs-git
+spec:
+  type: git
+  params:
+    - name: revision
+      value: main
+    - name: url
+      value: https://github.com/IBM-TCSPMG-Collaboration/edge-open-banking-ui-ibm-cloud.git
+---
+
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: nodejs-image-dev
+spec:
+  type: image
+  params:
+    - name: url
+      value: image-registry.openshift-image-registry.svc:5000/edge-sat-test/edge-sat

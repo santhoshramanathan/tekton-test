@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-nodejs-app
+spec:
+  inputs:
+    resources:
+      - name: image
+        type: image
+    params:
+      - name: APP_NAME
+        description: The name of the application
+        default: 'edge-sat'
+        type: string
+      - name: APP_VERSION
+        description: The version of the application
+        default: '1.0'
+        type: string
+      - name: AUTHORS_API_KEY
+        description: The version of the application
+        default: 'authors-secret-api'
+        type: string
+      - name: DEPLOY_PROJECT
+        description: The project where you deploy the app
+        default: 'edge-sat-test'
+        type: string
+
+  steps:
+      - name: create-app
+        image: quay.io/openshift/origin-cli:latest
+        workingDir: /workspace/source
+        command: ["/bin/bash", "-c"]
+        args:
+          - |-
+            oc new-app -i $(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            oc expose svc/$(inputs.params.APP_NAME) -n $(inputs.params.DEPLOY_PROJECT)
+            

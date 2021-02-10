@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: edge-sat-pipeline
+  namespace: edge-sat-test
+spec:
+  resources:
+    - name: git
+      type: git
+    - name: image
+      type: image
+  tasks:
+    - name: edge-satellite-build
+      params:
+        - name: VERSION
+          value: latest
+        - name: PATH_CONTEXT
+          value: client
+        - name: TLSVERIFY
+          value: 'false'
+      resources:
+        inputs:
+          - name: source
+            resource: git
+        outputs:
+          - name: image
+            resource: image
+      taskRef:
+        kind: Task
+        name: edge-satellite-build
+    - name: deploy-nodejs-app
+      params:
+        - name: APP_NAME
+          value: edge-sat
+        - name: APP_VERSION
+          value: '1.0'
+        - name: AUTHORS_API_KEY
+          value: authors-secret-api
+        - name: DEPLOY_PROJECT
+          value: edge-sat-test
+      resources:
+        inputs:
+          - name: image
+            resource: image
+      runAfter:
+        - edge-satellite-build
+      taskRef:
+        kind: Task
+        name: deploy-nodejs-app
